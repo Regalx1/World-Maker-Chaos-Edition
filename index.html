@@ -4,8 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>World Maker: Chaos Edition</title>
-    <!-- Link to the Web App manifest (GitHub Pages path) -->
+
+    <!-- PWA Manifest -->
     <link rel="manifest" href="/World-Maker-Chaos-Edition/manifest.json">
+
+    <!-- REQUIRED for iOS to allow installation -->
+    <link rel="apple-touch-icon" href="/World-Maker-Chaos-Edition/icon-512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/World-Maker-Chaos-Edition/icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/World-Maker-Chaos-Edition/icon-512.png">
+
+    <!-- iOS: run in standalone app mode -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- iOS: status bar color -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- iOS: App name fallback -->
+    <meta name="apple-mobile-web-app-title" content="World Maker">
+
     <style>
         * {
             margin: 0;
@@ -195,12 +211,16 @@
         <button class="btn chaos" id="npc-freeze">🧊 FREEZE!</button>
         <button class="btn chaos" id="open-chaos">💥 CHAOS WHEEL</button>
     </div>
+
     <script type="module" src="game.js"></script>
-    <!-- Register service worker for PWA (GitHub Pages path) -->
+
+    <!-- Register service worker for PWA -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/World-Maker-Chaos-Edition/service-worker.js', {scope: '/World-Maker-Chaos-Edition/'}).catch(err => {
+          navigator.serviceWorker.register('/World-Maker-Chaos-Edition/service-worker.js', {
+            scope: '/World-Maker-Chaos-Edition/'
+          }).catch(err => {
             console.error('Service Worker registration failed:', err);
           });
         });
