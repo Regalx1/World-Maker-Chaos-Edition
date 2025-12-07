@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>World Maker: Chaos Edition</title>
+    <!-- Link to the Web App manifest -->
+    <link rel="manifest" href="manifest.json">
     <style>
         * {
             margin: 0;
@@ -167,7 +169,7 @@
 <body>
     <canvas id="canvas"></canvas>
     <div id="mode-indicator">BUILD MODE</div>
-    
+
     <div id="chaos-wheel">
         <div class="wheel-bg"></div>
         <div class="wheel-btn" data-chaos="meteor">☄️</div>
@@ -194,6 +196,15 @@
         <button class="btn chaos" id="open-chaos">💥 CHAOS WHEEL</button>
     </div>
     <script type="module" src="game.js"></script>
+    <!-- Register service worker for PWA -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js').catch(err => {
+            console.error('Service Worker registration failed:', err);
+          });
+        });
+      }
+    </script>
 </body>
 </html>
-
