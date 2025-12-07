@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>World Maker: Chaos Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: #000;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #ui {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .btn {
+            background: #fff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.1s, background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn.build {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn.chaos {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn.active {
+            background: #FFC107;
+            color: black;
+        }
+
+        #mode-indicator {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        #chaos-wheel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 320px;
+            height: 320px;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+        }
+
+        #chaos-wheel.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .wheel-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 100%);
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        .wheel-btn {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #f44336;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .wheel-btn:active {
+            transform: scale(0.9);
+        }
+
+        .wheel-btn:nth-child(2) { top: 10px; left: 50%; transform: translateX(-50%); }
+        .wheel-btn:nth-child(3) { top: 30%; right: 10px; }
+        .wheel-btn:nth-child(4) { top: 50%; right: 10px; transform: translateY(-50%); }
+        .wheel-btn:nth-child(5) { bottom: 30%; right: 10px; }
+        .wheel-btn:nth-child(6) { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .wheel-btn:nth-child(7) { bottom: 30%; left: 10px; }
+        .wheel-btn:nth-child(8) { top: 50%; left: 10px; transform: translateY(-50%); }
+        .wheel-btn:nth-child(9) { top: 30%; left: 10px; }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        }
+
+        .wheel-center:active {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="mode-indicator">BUILD MODE</div>
+    
+    <div id="chaos-wheel">
+        <div class="wheel-bg"></div>
+        <div class="wheel-btn" data-chaos="meteor">☄️</div>
+        <div class="wheel-btn" data-chaos="tornado">🌪️</div>
+        <div class="wheel-btn" data-chaos="earthquake">🌋</div>
+        <div class="wheel-btn" data-chaos="cars">🚗</div>
+        <div class="wheel-btn" data-chaos="gravity">🌌</div>
+        <div class="wheel-btn" data-chaos="explode">💥</div>
+        <div class="wheel-btn" data-chaos="bounce">🎾</div>
+        <div class="wheel-btn" data-chaos="giant">🦖</div>
+        <div class="wheel-center" id="close-wheel">✕</div>
+    </div>
+
+    <div id="ui">
+        <button class="btn build active" data-mode="road">🛣️ Road</button>
+        <button class="btn build" data-mode="building">🏢 Building</button>
+        <button class="btn build" data-mode="car">🚗 Car</button>
+        <button class="btn build" data-mode="tree">🌲 Tree</button>
+        <button class="btn build" data-mode="npc">👤 People</button>
+        <button class="btn chaos" id="spawn-cars">🚗💨 Spawn 50 Cars</button>
+        <button class="btn chaos" id="npc-panic">😱 PANIC!</button>
+        <button class="btn chaos" id="npc-dance">💃 DANCE!</button>
+        <button class="btn chaos" id="npc-freeze">🧊 FREEZE!</button>
+        <button class="btn chaos" id="open-chaos">💥 CHAOS WHEEL</button>
+    </div>
+    <script type="module" src="game.js"></script>
+</body>
+</html>
+
